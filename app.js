@@ -1,0 +1,121 @@
+/*
+GAME RULES:
+
+- The game has 2 players, playing in rounds
+- In each turn, a player rolls a dice as many times as he whishes. Each result get added to his ROUND score
+- BUT, if the player rolls a 1, all his ROUND score gets lost. After that, it's the next player's turn
+- The player can choose to 'Hold', which means that his ROUND score gets added to his GLBAL score. After that, it's the next player's turn
+- The first player to reach 100 points on GLOBAL score wins the game
+
+*/
+
+var scores, roundScore, activePlayer, gamePlaying;
+init();
+
+//When I press ROLL DICE
+//I can add an anonymous function in the second parameter which means it has no name & it can't be used anywhere else
+document.querySelector('.btn-roll').addEventListener('click',function(){
+        if (gamePlaying) {
+                 //1] Random number
+                        
+                var dice=Math.floor(Math.random()*6) +1;
+
+                //2] Display the result
+                var diceDOM =document.querySelector('.dice');
+                diceDOM.style.display='block';
+                diceDOM.src = 'dice-' +dice+ '.png';
+                       
+
+                //3] Update the round score if the rolled number wasn't 1
+                if (dice !== 1) {
+                        //Add score
+                        roundScore += dice;
+                        document.querySelector('#current-'+activePlayer).textContent= roundScore;
+                } else {
+                //Next player
+                        nextPlayer();
+
+                }
+                        
+        }     
+});
+
+document.querySelector('.btn-hold').addEventListener('click', function(){
+        if (gamePlaying) {
+                 //Add Current score to the Global Score
+                //activePlayer is either 0 or 1 so here i will access the right place in the array for each player
+                scores[activePlayer] += roundScore;
+
+                //Update the UI
+                document.querySelector('#score-' + activePlayer).textContent = scores[activePlayer];
+        
+                //Check if the player won the game
+                if(scores[activePlayer] >=50){
+                        document.querySelector('#name-' + activePlayer).textContent = 'Winner!';
+                        document.querySelector('.dice').style.display='none';
+                        document.querySelector('.player-' +activePlayer + '-panel').classList.add('winner');
+                        document.querySelector('.player-' +activePlayer + '-panel').classList.remove('active');
+                        //Setting gamePlaying to false so he can't be able to press roll dice when we have a winner
+                        gamePlaying=false;
+
+                }else{
+                        //Next player
+                        nextPlayer();
+                }
+        }           
+});
+
+function nextPlayer(){
+         //Next player
+         activePlayer === 0 ? activePlayer = 1: activePlayer =0;
+         roundScore=0;
+
+         // This to make the score in the red box equals to zero when the other player is chosen
+         document.getElementById('current-0').textContent = '0';
+         document.getElementById('current-1').textContent = '0';
+
+         //Here to toggle between the players to change the active status 
+         document.querySelector('.player-0-panel').classList.toggle('active');
+         document.querySelector('.player-1-panel').classList.toggle('active');
+
+         document.querySelector('.dice').style.display= 'none';
+};
+
+//when i press the new game button
+//init not init() because I want the eventListener to call the func for me
+document.querySelector('.btn-new').addEventListener('click',init);
+
+//Each time we start the game we set everything to zero
+function init(){
+        scores=[0,0];
+        roundScore=0;
+        activePlayer=0;
+        gamePlaying=true;
+        //To set everything to zero at the begining
+        document.getElementById('score-0').textContent ='0';
+        document.getElementById('score-1').textContent ='0';
+        document.getElementById('current-0').textContent ='0';
+        document.getElementById('current-1').textContent ='0';
+
+        //to hide the dice pic at the begining
+        document.querySelector('.dice').style.display ='none';
+
+        //To get rid of winner title from previous game
+        document.getElementById('name-0').textContent = 'Player 1';
+        document.getElementById('name-1').textContent = 'Player 2';
+
+        //To get rid of the winner and active class 
+        document.querySelector('.player-0-panel').classList.remove('winner');
+        document.querySelector('.player-1-panel').classList.remove('winner');
+        document.querySelector('.player-0-panel').classList.remove('active');
+         document.querySelector('.player-1-panel').classList.remove('active');
+         //Then i add active class to player 0
+         document.querySelector('.player-0-panel').classList.add('active');//why did i remove it if i will just add it again?
+                                                                           //because if i add it without removing it then i will have 2 active class so the code won't
+                                                                           //work correctly because i remove the class once so instead of being completely removed ,
+                                                                           //I will still have another one runing.
+
+
+
+
+}
